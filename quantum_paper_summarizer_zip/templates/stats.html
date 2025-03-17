@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics - Quantum Paper Summarizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background-color: #0d2240;
+        }
+        .stats-card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        .stats-title {
+            color: #0d2240;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #0d2240;
+        }
+        .stats-label {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+        .footer {
+            background-color: #0d2240;
+            color: white;
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 30px;
+        }
+        .log-table {
+            font-size: 0.9rem;
+        }
+        .log-success {
+            color: #28a745;
+        }
+        .log-error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Quantum Physics Research Paper Summarizer</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/stats">Statistics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://arxiv.org/archive/quant-ph" target="_blank">arXiv quant-ph</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="stats-title">System Statistics</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <div class="stats-number">{{ stats.total_papers }}</div>
+                        <div class="stats-label">Total Papers</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <div class="stats-number">{{ stats.summarized_papers }}</div>
+                        <div class="stats-label">Summarized Papers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Papers by Category</h5>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Papers by Month</h5>
+                        <div class="chart-container">
+                            <canvas id="dateChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Recent Retrieval Logs</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped log-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Papers Retrieved</th>
+                                        <th>Status</th>
+                                        <th>Message</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in stats.latest_retrieval %}
+                                    <tr>
+                                        <td>{{ log.run_date }}</td>
+                                        <td>{{ log.papers_retrieved }}</td>
+                                        <td class="{% if log.status == 'success' %}log-success{% else %}log-error{% endif %}">
+                                            {{ log.status }}
+                                        </td>
+                                        <td>{{ log.message }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Quantum Physics Research Paper Summarizer</h5>
+                    <p>An automated tool for retrieving and summarizing the latest quantum physics research papers from arXiv.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>Data source: <a href="https://arxiv.org" class="text-white" target="_blank">arXiv.org</a></p>
+                    <p>© 2025 Quantum Paper Summarizer</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Chart data
+        const categoryData = {{ stats.category_stats|json|safe }};
+        const dateData = {{ stats.date_stats|json|safe }};
+
+        // Category chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'bar',
+            data: {
+                labels: categoryData.map(item => item.category_code),
+                datasets: [{
+                    label: 'Number of Papers',
+                    data: categoryData.map(item => item.paper_count),
+                    backgroundColor: '#0d2240',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+
+        // Date chart
+        const dateCtx = document.getElementById('dateChart').getContext('2d');
+        new Chart(dateCtx, {
+            type: 'line',
+            data: {
+                labels: dateData.map(item => item.month),
+                datasets: [{
+                    label: 'Papers Published',
+                    data: dateData.map(item => item.paper_count),
+                    borderColor: '#0d2240',
+                    backgroundColor: 'rgba(13, 34, 64, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

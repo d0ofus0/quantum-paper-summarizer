@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Computing Research Paper Summarizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background-color: #0d2240;
+        }
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-title {
+            color: #0d2240;
+            font-weight: 600;
+        }
+        .category-badge {
+            background-color: #6c757d;
+            margin-right: 5px;
+        }
+        .pagination .page-link {
+            color: #0d2240;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #0d2240;
+            border-color: #0d2240;
+        }
+        .footer {
+            background-color: #0d2240;
+            color: white;
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+        .paper-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        .paper-link:hover {
+            text-decoration: none;
+        }
+        .last-updated {
+            font-style: italic;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Quantum Physics Research Paper Summarizer</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/stats">Statistics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://arxiv.org/archive/quant-ph" target="_blank">arXiv quant-ph</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <p class="mb-0">This tool automatically retrieves the latest quantum physics research papers from arXiv's quant-ph category and generates concise summaries using natural language processing techniques.</p>
+                    <p class="last-updated mb-0 mt-2">Papers are automatically updated daily. Click on any paper to view a detailed summary.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            {% for paper in papers %}
+            <div class="col-md-6">
+                <a href="/paper/{{ paper.id }}" class="paper-link">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ paper.title }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                {{ paper.authors|join(', ') }}
+                            </h6>
+                            <p class="card-text text-muted">Published: {{ paper.published_date }}</p>
+                            <div class="mb-3">
+                                {% for category in paper.categories %}
+                                <span class="badge category-badge">{{ category }}</span>
+                                {% endfor %}
+                            </div>
+                            <p class="card-text">{{ paper.brief_summary }}</p>
+                            <div class="text-end">
+                                <small class="text-primary">Click for detailed summary</small>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="/?page={{ page - 1 }}">&laquo; Previous</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo; Previous</span>
+                        </li>
+                        {% endif %}
+
+                        {% for p in range(1, total_pages + 1) %}
+                        <li class="page-item {% if p == page %}active{% endif %}">
+                            <a class="page-link" href="/?page={{ p }}">{{ p }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="/?page={{ page + 1 }}">Next &raquo;</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Next &raquo;</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Quantum Physics Research Paper Summarizer</h5>
+                    <p>An automated tool for retrieving and summarizing the latest quantum physics research papers from arXiv.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>Data source: <a href="https://arxiv.org" class="text-white" target="_blank">arXiv.org</a></p>
+                    <p>© 2025 Quantum Paper Summarizer</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
