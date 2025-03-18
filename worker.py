@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+import nltk
 from datetime import datetime, timedelta
 import arxiv_retrieval
 import paper_processor
@@ -26,8 +27,62 @@ def should_run_retrieval(hours_between_runs=24):
     time_since_last_run = datetime.now() - last_run
     return time_since_last_run > timedelta(hours=hours_between_runs)
 
+def download_nltk_resources():
+    """Download required NLTK resources if not already present."""
+    try:
+        nltk.data.find('tokenizers/punkt')
+        logger.info("NLTK punkt tokenizer already downloaded")
+    except LookupError:
+        logger.info("Downloading NLTK punkt tokenizer")
+        nltk.download('punkt')
+    
+    try:
+        nltk.data.find('corpora/stopwords')
+        logger.info("NLTK stopwords already downloaded")
+    except LookupError:
+        logger.info("Downloading NLTK stopwords")
+        nltk.download('stopwords')
+
+def process_all_papers():
+    """Process all papers regardless of whether they have summaries or not."""
+    conn = arxiv_retrieval.sqlite3.connect(arxiv_retrieval.DB_PATH)
+    cursor = conn.cursor()
+    
+    try:
+        # Get all papers
+        cursor.execute("SELECT id FROM papers")
+        all_papers = cursor.fetchall()
+        
+        if not all_papers:
+            logger.info("No papers found in database")
+            return 0
+        
+        logger.info(f"Found {len(all_papers)} papers to process")
+        
+        # Process each paper
+        processed_count = 0
+        for paper in all_papers:
+            paper_id = paper[0]
+            success = paper_processor.extract_and_summarize_paper(paper_id)
+            if success:
+                processed_count += 1
+        
+        logger.info(f"Successfully processed {processed_count} papers")
+        return processed_count
+        
+    except Exception as e:
+        logger.error(f"Error processing papers: {str(e)}")
+        return 0
+        
+    finally:
+        conn.close()
+
 def main():
     logger.info("Starting worker process")
+    
+    # Download NLTK resources first
+    logger.info("Ensuring NLTK resources are available")
+    download_nltk_resources()
     
     # Initialize the database if it doesn't exist
     if not os.path.exists(arxiv_retrieval.DB_PATH):
@@ -47,6 +102,10 @@ def main():
         logger.error(f"Error checking database: {str(e)}")
     finally:
         conn.close()
+    
+    # Process all existing papers to ensure summaries exist
+    logger.info("Processing all existing papers to ensure summaries exist")
+    process_all_papers()
     
     # Main loop
     while True:
