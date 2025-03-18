@@ -39,31 +39,31 @@ def format_date(date_str):
     except:
         return date_str
 
-# Schedule background tasks
-def schedule_tasks():
-    scheduler = BackgroundScheduler()
+# # Schedule background tasks
+# def schedule_tasks():
+#     scheduler = BackgroundScheduler()
     
-    # Schedule paper retrieval to run daily
-    scheduler.add_job(
-        func=arxiv_retrieval.retrieve_recent_papers,
-        trigger='interval',
-        days=1,
-        id='retrieve_papers',
-        kwargs={'max_results': 20},
-        replace_existing=True
-    )
+#     # Schedule paper retrieval to run daily
+#     scheduler.add_job(
+#         func=arxiv_retrieval.retrieve_recent_papers,
+#         trigger='interval',
+#         days=1,
+#         id='retrieve_papers',
+#         kwargs={'max_results': 20},
+#         replace_existing=True
+#     )
     
-    # Schedule paper processing to run 30 minutes after retrieval
-    scheduler.add_job(
-        func=paper_processor.process_unprocessed_papers,
-        trigger='interval',
-        days=1,
-        id='process_papers',
-        replace_existing=True
-    )
+#     # Schedule paper processing to run 30 minutes after retrieval
+#     scheduler.add_job(
+#         func=paper_processor.process_unprocessed_papers,
+#         trigger='interval',
+#         days=1,
+#         id='process_papers',
+#         replace_existing=True
+#     )
     
-    scheduler.start()
-    logger.info("Scheduled tasks have been set up")
+#     scheduler.start()
+#     logger.info("Scheduled tasks have been set up")
 
 # Routes
 @app.route('/')
@@ -318,7 +318,7 @@ if __name__ == '__main__':
     init_db()
     
     # Schedule background tasks
-    schedule_tasks()
+    # schedule_tasks()
     
     # Run initial retrieval if database is empty
     conn = get_db_connection()
